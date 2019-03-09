@@ -1,5 +1,5 @@
 /**
- * Corrector para la práctica de cmd
+ * Corrector para la práctica de sql
  */
 
 // IMPORTS
@@ -10,23 +10,22 @@ const Utils = require('./utils');
 const to = require('./to');
 const spawn = require("child_process").spawn;
 
-const path_assignment = path.resolve(path.join(__dirname, "../"));
-
 // CRITICAL ERRORS
 let error_critical = null;
 
 // CONSTANTS
 const T_WAIT = 2; // Time between commands
 const T_TEST = 2 * 60; // Time between tests (seconds)
-const quizzes_orig = path.join(path_assignment, 'quizzes.json');
-const quizzes_back = path.join(path_assignment, 'quizzes.original.json');
-const quizzes_test = path.join(path_assignment, 'tests', 'quizzes.json');
-
+const path_assignment = path.resolve(path.join(__dirname, "../"));
+const quizzes_orig = path.join(path_assignment, 'quizzes.sqlite');
+const quizzes_back = path.join(path_assignment, 'quizzes.original.sqlite');
+const quizzes_test = path.join(path_assignment, 'tests', 'quizzes.sqlite');
+let client = null;
 // HELPERS
 const timeout = ms => new Promise(res => setTimeout(res, ms));
 
 //TESTS
-describe("CORE19-03_quiz_cmd", function () {
+describe("CORE19-04_quiz_bbdd", function () {
 
     this.timeout(T_TEST * 1000);
 
@@ -59,7 +58,7 @@ describe("CORE19-03_quiz_cmd", function () {
                 this.msg_err = `The file '${path_json}' has not been found`;
                 error_critical = this.msg_err;
             }
-            should.not.exist(error_critical);
+            json_ok.should.be.equal(true);
 
             // check package.json format
             const [error_json, contenido] = await to(fs.readFile(path_json, 'utf8'));
@@ -67,12 +66,12 @@ describe("CORE19-03_quiz_cmd", function () {
                 this.msg_err = `The file '${path_json}' doesn't have the right format`;
                 error_critical = this.msg_err;
             }
-            should.not.exist(error_critical);
-            const es_json = Utils.isJSON(contenido);
-            if (!es_json) {
+            should.not.exist(error_json);
+            const is_json = Utils.isJSON(contenido);
+            if (!is_json) {
                 error_critical = this.msg_err;
             }
-            should.not.exist(error_critical);
+            is_json.should.be.equal(true);
 
             // inject local figlet
             try {
@@ -100,13 +99,13 @@ describe("CORE19-03_quiz_cmd", function () {
                 error_critical = this.msg_err;
             }
             should.not.exist(error_critical);
+
         }
     });
 
-
     it('', async function () {
-        this.name = `3(Precheck): Checking that the file 'quizzes.json' is read. Running 'list'...`;
-        this.score = 0;
+        this.name = `3: Checking that the file 'quizzes.sqlite' is read. Running 'list'...`;
+        this.score = 1;
         if (error_critical) {
             this.msg_err = error_critical;
             should.not.exist(error_critical);
@@ -115,23 +114,15 @@ describe("CORE19-03_quiz_cmd", function () {
             const expected = "Answer Number 1";
             let output = "";
             let error_std = "";
-            const client = spawn("node", ["main.js"], {cwd: path_assignment});
+            client = spawn("node", ["main.js"], {cwd: path_assignment});
             client.on('error', function (data) {
                 error_std += data
-            });
-            client.stdin.on('data', function (data) {
-                output += data
             });
             client.stdout.on('data', function (data) {
                 output += data
             });
-            client.stderr.on('data', function (data) {
-                error_std += data
-            });
             await timeout(T_WAIT * 1000);
-            if (client) {
-                client.stdin.write(input[0] + "\n");
-            }
+            client.stdin.write(input[0] + "\n");
             await timeout(T_WAIT * 1000);
             if (client) {
                 client.kill();
@@ -154,18 +145,12 @@ describe("CORE19-03_quiz_cmd", function () {
             const expected = /error/img;
             let output = "";
             let error_std = "";
-            const client = spawn("node", ["main.js"], {cwd: path_assignment});
+            client = spawn("node", ["main.js"], {cwd: path_assignment});
             client.on('error', function (data) {
                 error_std += data
             });
-            client.stdin.on('data', function (data) {
-                output += data
-            });
             client.stdout.on('data', function (data) {
                 output += data
-            });
-            client.stderr.on('data', function (data) {
-                error_std += data
             });
             await timeout(T_WAIT * 1000);
             client.stdin.write(input[0] + "\n");
@@ -191,18 +176,12 @@ describe("CORE19-03_quiz_cmd", function () {
             const expected = /\bcorrect/img;
             let output = "";
             let error_std = "";
-            const client = spawn("node", ["main.js"], {cwd: path_assignment});
+            client = spawn("node", ["main.js"], {cwd: path_assignment});
             client.on('error', function (data) {
                 error_std += data
             });
-            client.stdin.on('data', function (data) {
-                output += data
-            });
             client.stdout.on('data', function (data) {
                 output += data
-            });
-            client.stderr.on('data', function (data) {
-                error_std += data
             });
             await timeout(T_WAIT * 1000);
             client.stdin.write(input[0] + "\n");
@@ -230,18 +209,12 @@ describe("CORE19-03_quiz_cmd", function () {
             const expected = /incorrect/img;
             let output = "";
             let error_std = "";
-            const client = spawn("node", ["main.js"], {cwd: path_assignment});
+            client = spawn("node", ["main.js"], {cwd: path_assignment});
             client.on('error', function (data) {
                 error_std += data
             });
-            client.stdin.on('data', function (data) {
-                output += data
-            });
             client.stdout.on('data', function (data) {
                 output += data
-            });
-            client.stderr.on('data', function (data) {
-                error_std += data
             });
             await timeout(T_WAIT * 1000);
             client.stdin.write(input[0] + "\n");
@@ -269,18 +242,12 @@ describe("CORE19-03_quiz_cmd", function () {
             const expected = /correct/img;
             let output = "";
             let error_std = "";
-            const client = spawn("node", ["main.js"], {cwd: path_assignment});
+            client = spawn("node", ["main.js"], {cwd: path_assignment});
             client.on('error', function (data) {
                 error_std += data
             });
-            client.stdin.on('data', function (data) {
-                output += data
-            });
             client.stdout.on('data', function (data) {
                 output += data
-            });
-            client.stderr.on('data', function (data) {
-                error_std += data
             });
             await timeout(T_WAIT * 1000);
             client.stdin.write(input[0] + "\n");
@@ -308,18 +275,12 @@ describe("CORE19-03_quiz_cmd", function () {
             const expected = /aciertos:\s+1| 1\s+acierto/img;
             let output = "";
             let error_std = "";
-            const client = spawn("node", ["main.js"], {cwd: path_assignment});
+            client = spawn("node", ["main.js"], {cwd: path_assignment});
             client.on('error', function (data) {
                 error_std += data
             });
-            client.stdin.on('data', function (data) {
-                output += data
-            });
             client.stdout.on('data', function (data) {
                 output += data
-            });
-            client.stderr.on('data', function (data) {
-                error_std += data
             });
             await timeout(T_WAIT * 1000);
             client.stdin.write(input[0] + "\n");
@@ -347,18 +308,12 @@ describe("CORE19-03_quiz_cmd", function () {
             const expected = /incorrect/img;
             let output = "";
             let error_std = "";
-            const client = spawn("node", ["main.js"], {cwd: path_assignment});
+            client = spawn("node", ["main.js"], {cwd: path_assignment});
             client.on('error', function (data) {
                 error_std += data
             });
-            client.stdin.on('data', function (data) {
-                output += data
-            });
             client.stdout.on('data', function (data) {
                 output += data
-            });
-            client.stderr.on('data', function (data) {
-                error_std += data
             });
             await timeout(T_WAIT * 1000);
             client.stdin.write(input[0] + "\n");
@@ -377,7 +332,7 @@ describe("CORE19-03_quiz_cmd", function () {
 
     it('', async function () {
         this.name = `10: Checking that the wrong answer ends the game. Running 'play'...`;
-        this.score = 2;
+        this.score = 1;
         if (error_critical) {
             this.msg_err = error_critical;
             should.not.exist(error_critical);
@@ -386,18 +341,12 @@ describe("CORE19-03_quiz_cmd", function () {
             const expected = "fin";
             let output = "";
             let error_std = "";
-            const client = spawn("node", ["main.js"], {cwd: path_assignment});
+            client = spawn("node", ["main.js"], {cwd: path_assignment});
             client.on('error', function (data) {
                 error_std += data
             });
-            client.stdin.on('data', function (data) {
-                output += data
-            });
             client.stdout.on('data', function (data) {
                 output += data
-            });
-            client.stderr.on('data', function (data) {
-                error_std += data
             });
             await timeout(T_WAIT * 1000);
             client.stdin.write(input[0] + "\n");
@@ -415,6 +364,7 @@ describe("CORE19-03_quiz_cmd", function () {
     });
 
     after("Restoring the original file", async function () {
+        if(client){client.kill();await timeout(T_WAIT * 1000);}
         fs.copySync(quizzes_back, quizzes_orig, {"overwrite": true});
     });
 });

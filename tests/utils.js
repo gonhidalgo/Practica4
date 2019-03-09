@@ -77,10 +77,10 @@ Utils.search = (b, a) => {
             return result;
         } else {
             if (Utils.isString(a.toString())) {
-                return (a.toLowerCase().indexOf(b.toLowerCase()) > -1);
+                return (a.toString().toLowerCase().indexOf(b.toLowerCase()) > -1);
             }
         }
     }
-}
+};
 
 module.exports = Utils;

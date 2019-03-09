@@ -18,19 +18,12 @@ new Mocha({
     .on('pass', function (test) {
         score += test.ctx.score;
         score_total += test.ctx.score;
-        process.stdout.write(
-            `\nTest: ${test.ctx.name}
-         Score: ${test.ctx.score}/${test.ctx.score}
-         Remarks: ${test.ctx.msg_ok}\n`
-        );
+        process.stdout.write(`\nTest: ${test.ctx.name}\n\tScore: ${test.ctx.score}/${test.ctx.score}\n\tRemarks: ${test.ctx.msg_ok}\n`);
     })
     .on('fail', function (test, err) {
         if ((test.title.indexOf('"after all" hook')<0) && (test.title.indexOf('"before all" hook')<0)) {
             score_total += test.ctx.score;
-            process.stdout.write(
-                `\nTest: ${test.ctx.name}
-         Score: 0/${test.ctx.score}
-         Remarks: ${test.ctx.msg_err}\n`);
+            process.stdout.write(`\nTest: ${test.ctx.name}\n\tScore: 0/${test.ctx.score}\n\tRemarks: ${test.ctx.msg_err}\n`);
         } else {
             console.error("Launcher Error: " + err);
         }
